@@ -30,6 +30,12 @@
             <span class="tap-hint">Tap preview to take photo</span>
           </button>
           <p class="camera-hint">Center only the kilometer digits inside the green band. The photo is read automatically.</p>
+          <div class="guide-settings" aria-label="Camera guide size">
+            <label for="guide-width">Guide width <output id="guide-width-value" for="guide-width">50%</output></label>
+            <input id="guide-width" type="range" min="30" max="80" step="1" value="50" />
+            <label for="guide-height">Guide height <output id="guide-height-value" for="guide-height">13%</output></label>
+            <input id="guide-height" type="range" min="7" max="30" step="1" value="13" />
+          </div>
           <div class="camera-controls">
             <button id="cancel-camera" class="secondary-button" type="button">Cancel</button>
             <button id="capture-photo" class="read-button" type="button" disabled>Take photo</button>

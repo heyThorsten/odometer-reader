@@ -151,14 +151,15 @@ h1 {
 
 .guide-frame {
   position: absolute;
-  top: 37%;
-  left: 25%;
-  width: 50%;
-  height: 13%;
+  top: 43.5%;
+  left: 50%;
+  width: var(--guide-width, 50%);
+  height: var(--guide-height, 13%);
   border: 2px solid var(--accent);
   border-radius: 5px;
   box-shadow: 0 0 0 1px rgb(25 12 7 / 50%), 0 0 18px rgb(239 94 44 / 42%);
   pointer-events: none;
+  transform: translate(-50%, -50%);
 }
 
 .guide-frame::before,
@@ -215,6 +216,32 @@ h1 {
   font-size: 0.84rem;
   line-height: 1.4;
   text-align: center;
+}
+
+.guide-settings {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 6px 12px;
+  margin: 14px 2px;
+  color: #5d6870;
+  font-size: 0.84rem;
+}
+
+.guide-settings label {
+  font-weight: 650;
+}
+
+.guide-settings output {
+  color: #172027;
+  font-variant-numeric: tabular-nums;
+}
+
+.guide-settings input {
+  grid-column: 1 / -1;
+  width: 100%;
+  margin: 0;
+  accent-color: var(--accent);
 }
 
 .camera-controls {

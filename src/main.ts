@@ -14,12 +14,97 @@ const readButton = document.querySelector<HTMLButtonElement>("#read-button")!;
 const status = document.querySelector<HTMLDivElement>("#status")!;
 const result = document.querySelector<HTMLDivElement>("#result")!;
 const reading = document.querySelector<HTMLOutputElement>("#reading")!;
+const guideWidthInput = document.querySelector<HTMLInputElement>("#guide-width")!;
+const guideHeightInput = document.querySelector<HTMLInputElement>("#guide-height")!;
+const guideWidthValue = document.querySelector<HTMLOutputElement>("#guide-width-value")!;
+const guideHeightValue = document.querySelector<HTMLOutputElement>("#guide-height-value")!;
+const guideMask = cameraView.querySelector<SVGPathElement>(".camera-mask path")!;
 
 let selectedFile: File | null = null;
 let selectedImageSource: OdometerImageSource = "camera";
 let previewUrl: string | null = null;
 let selectionRevision = 0;
 let cameraStream: MediaStream | null = null;
+
+const GUIDE_STORAGE_KEY = "odometer-reader-guide-dimensions";
+const GUIDE_CENTER_Y = 43.5;
+const DEFAULT_GUIDE_DIMENSIONS = { width: 50, height: 13 };
+const GUIDE_WIDTH_RANGE = { min: 30, max: 80 };
+const GUIDE_HEIGHT_RANGE = { min: 7, max: 30 };
+
+type GuideDimensions = typeof DEFAULT_GUIDE_DIMENSIONS;
+
+function isInRange(value: unknown, range: { min: number; max: number }): value is number {
+  return typeof value === "number"
+    && Number.isInteger(value)
+    && value >= range.min
+    && value <= range.max;
+}
+
+function loadGuideDimensions(): GuideDimensions {
+  try {
+    const saved = localStorage.getItem(GUIDE_STORAGE_KEY);
+    if (!saved) return { ...DEFAULT_GUIDE_DIMENSIONS };
+
+    const parsed: unknown = JSON.parse(saved);
+    if (
+      typeof parsed === "object"
+      && parsed !== null
+      && "width" in parsed
+      && "height" in parsed
+      && isInRange(parsed.width, GUIDE_WIDTH_RANGE)
+      && isInRange(parsed.height, GUIDE_HEIGHT_RANGE)
+    ) {
+      return { width: parsed.width, height: parsed.height };
+    }
+
+    localStorage.removeItem(GUIDE_STORAGE_KEY);
+    status.textContent = "Saved guide dimensions were invalid and have been reset.";
+  } catch {
+    status.textContent = "Could not access browser storage. Guide dimensions will not be saved.";
+  }
+
+  return { ...DEFAULT_GUIDE_DIMENSIONS };
+}
+
+let guideDimensions = loadGuideDimensions();
+
+function applyGuideDimensions(): void {
+  guideWidthInput.value = String(guideDimensions.width);
+  guideHeightInput.value = String(guideDimensions.height);
+  guideWidthValue.value = `${guideDimensions.width}%`;
+  guideHeightValue.value = `${guideDimensions.height}%`;
+  cameraView.style.setProperty("--guide-width", `${guideDimensions.width}%`);
+  cameraView.style.setProperty("--guide-height", `${guideDimensions.height}%`);
+
+  const left = (100 - guideDimensions.width) / 2;
+  const top = GUIDE_CENTER_Y - guideDimensions.height / 2;
+  guideMask.setAttribute(
+    "d",
+    `M0 0h100v100H0z M${left} ${top}h${guideDimensions.width}v${guideDimensions.height}H${left}z`,
+  );
+}
+
+function saveGuideDimensions(): void {
+  try {
+    localStorage.setItem(GUIDE_STORAGE_KEY, JSON.stringify(guideDimensions));
+    status.textContent = "Guide dimensions saved for next use.";
+  } catch {
+    status.textContent = "Could not save guide dimensions in browser storage. They will reset next time.";
+  }
+}
+
+applyGuideDimensions();
+guideWidthInput.addEventListener("input", () => {
+  guideDimensions.width = Number(guideWidthInput.value);
+  applyGuideDimensions();
+});
+guideHeightInput.addEventListener("input", () => {
+  guideDimensions.height = Number(guideHeightInput.value);
+  applyGuideDimensions();
+});
+guideWidthInput.addEventListener("change", saveGuideDimensions);
+guideHeightInput.addEventListener("change", saveGuideDimensions);
 
 function stopCamera(): void {
   cameraStream?.getTracks().forEach((track) => track.stop());
@@ -127,10 +212,10 @@ async function capturePhoto(): Promise<void> {
     const context = canvas.getContext("2d");
     if (!context) throw new Error("This browser cannot capture camera images.");
     context.drawImage(cameraVideo, 0, 0, canvas.width, canvas.height);
-    const cropX = Math.round(canvas.width * 0.25);
-    const cropY = Math.round(canvas.height * 0.37);
-    const cropWidth = Math.round(canvas.width * 0.5);
-    const cropHeight = Math.round(canvas.height * 0.13);
+    const cropX = Math.round(canvas.width * (100 - guideDimensions.width) / 200);
+    const cropY = Math.round(canvas.height * (GUIDE_CENTER_Y - guideDimensions.height / 2) / 100);
+    const cropWidth = Math.round(canvas.width * guideDimensions.width / 100);
+    const cropHeight = Math.round(canvas.height * guideDimensions.height / 100);
     const croppedCanvas = document.createElement("canvas");
     croppedCanvas.width = cropWidth;
     croppedCanvas.height = cropHeight;
