@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#EF5E2C" />
+    <title>Odometer reader</title>
+  </head>
+  <body>
+    <main class="app">
+      <header class="intro">
+        <h1>Odometer reader</h1>
+      </header>
+
+      <section class="reader" aria-label="Odometer photo reader">
+        <div class="source-controls">
+          <button id="open-camera" class="read-button" type="button">Open camera</button>
+          <input id="photo-file" class="visually-hidden" type="file" accept="image/*" />
+          <label for="photo-file" class="secondary-button image-picker">Choose cropped image</label>
+        </div>
+        <p class="source-hint">For full-frame photos, use the camera guide to frame the display.</p>
+
+        <section id="camera-panel" class="camera-panel" aria-label="Camera preview" hidden>
+          <button id="camera-view" class="camera-view" type="button" aria-label="Tap preview to take a photo and read it" disabled>
+            <video id="camera-video" autoplay muted playsinline></video>
+            <svg class="camera-mask" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+              <path d="M0 0h100v100H0z M25 37h50v13H25z" fill-rule="evenodd" />
+            </svg>
+            <div class="guide-frame" aria-hidden="true"></div>
+            <span class="tap-hint">Tap preview to take photo</span>
+          </button>
+          <p class="camera-hint">Center only the kilometer digits inside the green band. The photo is read automatically.</p>
+          <div class="camera-controls">
+            <button id="cancel-camera" class="secondary-button" type="button">Cancel</button>
+            <button id="capture-photo" class="read-button" type="button" disabled>Take photo</button>
+          </div>
+        </section>
+
+        <div id="preview-wrap" class="preview-wrap" hidden>
+          <img id="photo-preview" alt="Selected odometer image" />
+        </div>
+
+        <button id="read-button" class="read-button" type="button" disabled>Read odometer</button>
+        <div id="status" class="status" role="status" aria-live="polite">Tap “Open camera” to take an odometer photo.</div>
+
+        <div id="result" class="result" hidden aria-live="polite">
+          <span class="result-label">Detected reading</span>
+          <output id="reading"></output>
+          <span class="unit">km</span>
+        </div>
+      </section>
+
+      <p class="privacy-note">OCR runs in your browser. The first read may take a moment while the OCR engine loads.</p>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
