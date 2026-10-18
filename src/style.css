@@ -313,6 +313,7 @@ h1 {
 
 .result {
   display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
   gap: 7px;
   margin-top: 16px;
@@ -333,6 +334,13 @@ h1 {
   font-variant-numeric: tabular-nums;
   font-weight: 750;
   letter-spacing: -0.04em;
+}
+
+.recognition-method {
+  flex-basis: 100%;
+  color: #74412F;
+  font-size: 0.78rem;
+  line-height: 1.4;
 }
 
 .unit {

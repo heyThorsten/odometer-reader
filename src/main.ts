@@ -14,6 +14,7 @@ const readButton = document.querySelector<HTMLButtonElement>("#read-button")!;
 const status = document.querySelector<HTMLDivElement>("#status")!;
 const result = document.querySelector<HTMLDivElement>("#result")!;
 const reading = document.querySelector<HTMLOutputElement>("#reading")!;
+const recognitionMethod = document.querySelector<HTMLElement>("#recognition-method")!;
 const guideWidthInput = document.querySelector<HTMLInputElement>("#guide-width")!;
 const guideHeightInput = document.querySelector<HTMLInputElement>("#guide-height")!;
 const guideWidthValue = document.querySelector<HTMLOutputElement>("#guide-width-value")!;
@@ -119,6 +120,7 @@ function stopCamera(): void {
 function clearReading(): void {
   result.hidden = true;
   reading.textContent = "";
+  recognitionMethod.textContent = "";
 }
 
 function setSelectedPhoto(file: File, source: OdometerImageSource): void {
@@ -157,6 +159,9 @@ async function readSelectedPhoto(file: File, source: OdometerImageSource): Promi
     }
 
     reading.textContent = detected.value;
+    recognitionMethod.textContent = detected.method === "custom"
+      ? "Recognized by custom algorithm"
+      : "Recognized by Tesseract.js";
     result.hidden = false;
     status.textContent = "Reading complete.";
   } catch (error) {

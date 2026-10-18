@@ -2,6 +2,7 @@ import { createWorker, PSM } from "tesseract.js";
 
 export type OdometerResult = {
   value: string;
+  method: "custom" | "tesseract";
 };
 
 export type OdometerImageSource = "camera" | "display" | "cropped";
@@ -304,7 +305,7 @@ function findSevenSegmentReading(canvas: HTMLCanvasElement, mask: Uint8Array): O
 
   const digits = reading.map((box) => recognizeSevenSegmentDigit(mask, canvas.width, box));
   if (digits.some(({ digit, errors }) => !digit || errors > 2)) return null;
-  return { value: digits.map(({ digit }) => digit).join("") };
+  return { value: digits.map(({ digit }) => digit).join(""), method: "custom" };
 }
 
 function findReading(
@@ -332,7 +333,7 @@ function findReading(
   }
 
   candidates.sort((a, b) => b.score - a.score);
-  return candidates[0] ? { value: candidates[0].value } : null;
+  return candidates[0] ? { value: candidates[0].value, method: "tesseract" } : null;
 }
 
 async function getWorker() {
